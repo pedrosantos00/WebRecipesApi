@@ -38,10 +38,16 @@ namespace WebRecipesApi.DAL
         {
             IEnumerable<Recipe> ListRecipes = new List<Recipe>();
 
-            ListRecipes = _context.Recipes.Where(u =>
-            string.IsNullOrEmpty(filterWord) ||
-            u.Title.Contains(filterWord)
-            );
+            ListRecipes = _context.Recipes
+       .Include(r => r.Tags)
+       .Include(r => r.Steps)
+       .Include(r => r.Comments)
+       //.Include(r => r.FavoritedBy)
+       .Include(r => r.Ingredients)
+       .Where(u =>
+           string.IsNullOrEmpty(filterWord) ||
+           u.Title.Contains(filterWord)
+       );
 
             return ListRecipes;
         }

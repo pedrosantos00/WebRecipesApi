@@ -40,6 +40,7 @@ namespace WebRecipesApi.BusinessLogic
         public async Task<List<Recipe>> Search (string? filterword)
         {
             IEnumerable<Recipe> recipeList = await _recipeRepository.Search(filterword);
+
             return recipeList.ToList();
         }
         //UPDATE

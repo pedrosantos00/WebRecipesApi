@@ -20,7 +20,7 @@ namespace WebRecipesApi.Controllers
 
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(int userId,[FromBody] Recipe recipe)
+        public async Task<IActionResult> Create(int userId,[FromBody]Recipe? recipe)
         {
             //NULO
             if (recipe == null) return BadRequest();
@@ -28,13 +28,19 @@ namespace WebRecipesApi.Controllers
             User userExists = await _userService.GetById(userId);
             if (userExists == null) return NotFound(new { Message = "User Not Found!" });
 
+            recipe.FavoritedBy = new List<User>();
             recipe.User = userExists;
             recipe.UserId = userId;
+
+            //ADICIONADo
+             userExists.Recipes.Add(recipe);
 
             await _recipeService.Create(recipe);
 
             return Ok();
         }
+
+
 
         // GET: api/<RecipeController>
         [HttpGet]
@@ -50,6 +56,8 @@ namespace WebRecipesApi.Controllers
             return await _recipeService.GetById(id);
         }
 
+        
+
         // POST api/<RecipeController>
         [HttpPost]
         public void Post([FromBody] Recipe recipe)
@@ -62,6 +70,34 @@ namespace WebRecipesApi.Controllers
         public void Put(int id, [FromBody] Recipe recipe)
         {
             _recipeService.Update(recipe);
+        }
+
+        // PUT api/<RecipeController>/5
+        [HttpPut("fav/{id}/{recipeId}")]
+        public async Task<IActionResult> AddFavorite(int id, int recipeId)
+        {
+            //NULO
+            if (recipeId == null) return BadRequest();
+            Recipe recipe = await _recipeService.GetById(recipeId);
+            if (recipe == null) return NotFound(new { Message = "Recipe Not Found!" });
+
+
+            User userExists = await _userService.GetById(id);
+            if (userExists == null) return NotFound(new { Message = "User Not Found!" });
+
+            if (recipe.FavoritedBy != null && recipe.FavoritedBy.Any(x => x.Id == userExists.Id))
+            {
+                recipe.FavoritedBy.Remove(userExists);
+                await _recipeService.Update(recipe);
+            }
+            else
+            {
+                recipe.FavoritedBy = new List<User>();
+                recipe.FavoritedBy.Add(userExists);
+                await _recipeService.Update(recipe);
+            }
+
+            return Ok();
         }
 
         // DELETE api/<RecipeController>/5
