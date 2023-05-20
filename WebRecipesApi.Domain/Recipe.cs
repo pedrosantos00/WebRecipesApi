@@ -17,13 +17,14 @@ namespace WebRecipesApi.Domain
         public string? Difficulty { get; set; }
         public int? MealsPerRecipe { get; set; }
         public float? Rate { get; set; } = 0;
+        public int TotalRates { get; set; } = 0;
         public bool? Aprooved { get; set; } = false;
-        public int? UserId { get; set; }
+        public int UserId { get; set; }
         public User? User { get; set; }
         public ICollection<Tag>? Tags { get; set; }
         public ICollection<Ingredient>? Ingredients { get; set; }
         public ICollection<Step>? Steps { get; set; }
         public ICollection<Comment>? Comments { get; set; }
-        public ICollection<User>? FavoritedBy { get; set; }
+        public ICollection<UserFavoriteRecipe>? FavoritedBy { get; set; }
     }
 }

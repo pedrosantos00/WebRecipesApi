@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebRecipesApi.DAL;
 
@@ -11,9 +12,11 @@ using WebRecipesApi.DAL;
 namespace WebRecipesApi.Migrations
 {
     [DbContext(typeof(WebRecipesDbContext))]
-    partial class WebRecipesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230520113117_v1.0")]
+    partial class v10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,19 +33,14 @@ namespace WebRecipesApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RecipeId")
+                    b.Property<int>("RecipeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -115,10 +113,7 @@ namespace WebRecipesApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TotalRates")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -141,9 +136,6 @@ namespace WebRecipesApi.Migrations
 
                     b.Property<string>("StepDescription")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StepId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -223,38 +215,34 @@ namespace WebRecipesApi.Migrations
 
             modelBuilder.Entity("WebRecipesApi.Domain.UserFavoriteRecipe", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("RecipeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "RecipeId");
 
                     b.HasIndex("RecipeId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("UserFavoriteRecipes");
                 });
 
             modelBuilder.Entity("WebRecipesApi.Domain.Comment", b =>
                 {
-                    b.HasOne("WebRecipesApi.Domain.Recipe", null)
+                    b.HasOne("WebRecipesApi.Domain.Recipe", "Recipe")
                         .WithMany("Comments")
-                        .HasForeignKey("RecipeId");
-
-                    b.HasOne("WebRecipesApi.Domain.User", null)
-                        .WithMany("Comments")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("WebRecipesApi.Domain.User", "CommentOwner")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("CommentOwner");
+
+                    b.Navigation("Recipe");
                 });
 
             modelBuilder.Entity("WebRecipesApi.Domain.Ingredient", b =>
@@ -268,9 +256,7 @@ namespace WebRecipesApi.Migrations
                 {
                     b.HasOne("WebRecipesApi.Domain.User", "User")
                         .WithMany("Recipes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
@@ -291,17 +277,21 @@ namespace WebRecipesApi.Migrations
 
             modelBuilder.Entity("WebRecipesApi.Domain.UserFavoriteRecipe", b =>
                 {
-                    b.HasOne("WebRecipesApi.Domain.Recipe", null)
+                    b.HasOne("WebRecipesApi.Domain.Recipe", "Recipe")
                         .WithMany("FavoritedBy")
                         .HasForeignKey("RecipeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebRecipesApi.Domain.User", null)
+                    b.HasOne("WebRecipesApi.Domain.User", "User")
                         .WithMany("FavoriteRecipes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Recipe");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebRecipesApi.Domain.Recipe", b =>
@@ -319,8 +309,6 @@ namespace WebRecipesApi.Migrations
 
             modelBuilder.Entity("WebRecipesApi.Domain.User", b =>
                 {
-                    b.Navigation("Comments");
-
                     b.Navigation("FavoriteRecipes");
 
                     b.Navigation("Recipes");

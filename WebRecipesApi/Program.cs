@@ -54,6 +54,10 @@ namespace WebRecipesApi
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserService>();
 
+            builder.Services.AddScoped<UserFavRecipeRepository>();
+            builder.Services.AddScoped<UserFavoriteRecipeService>();
+
+
             builder.Services.AddScoped<JWTService>();
 
             builder.Services.AddScoped<WebRecipesDbContext>();

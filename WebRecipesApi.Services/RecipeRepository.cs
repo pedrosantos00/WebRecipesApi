@@ -23,9 +23,27 @@ namespace WebRecipesApi.DAL
         }
 
         //RETRIEVE
-        public async Task<Recipe> GetById(int id)
+        public async Task<Recipe?> GetById(int id)
         {
-            return await _context.Recipes.FirstOrDefaultAsync(u => u.Id == id);
+            Recipe? recipe = await _context.Recipes
+                .Include(r => r.Tags)
+                .Include(r => r.Steps)
+                .Include(r => r.Comments)
+                .Include(r => r.FavoritedBy)
+                .Include(r => r.Ingredients)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            //if (recipe != null)
+            //{
+            //    // Populate the CommentOwnerFullName and CommentText properties
+            //    recipe.Comments = recipe.Comments.Select(c => new Comment
+            //    {
+            //        Text = c.Text,
+            //        Name = c.Name
+            //    }).ToList();
+            //}
+
+            return recipe;
         }
 
         public async Task<Recipe> GetByName(string title)
@@ -33,28 +51,49 @@ namespace WebRecipesApi.DAL
             return await _context.Recipes.FirstOrDefaultAsync(u => u.Title == title);
         }
 
-
-        public async Task<IEnumerable<Recipe>> Search(string? filterWord)
+        public async Task<IEnumerable<Recipe>> GetByUserId(int id)
         {
-            IEnumerable<Recipe> ListRecipes = new List<Recipe>();
+            IQueryable<Recipe> query = _context.Recipes
+                .Include(r => r.Tags)
+                .Include(r => r.Steps)
+                .Include(r => r.FavoritedBy)
+                .Include(r => r.Ingredients)
+                .Where(u =>
+                    u.Aprooved == true &&
+                    u.UserId == id
+                );
 
-            ListRecipes = _context.Recipes
-       .Include(r => r.Tags)
-       .Include(r => r.Steps)
-       .Include(r => r.Comments)
-       //.Include(r => r.FavoritedBy)
-       .Include(r => r.Ingredients)
-       .Where(u =>
-           string.IsNullOrEmpty(filterWord) ||
-           u.Title.Contains(filterWord)
-       );
+            var recipes = await query.ToListAsync();
 
-            return ListRecipes;
+
+
+            return recipes;
         }
 
 
-        //UPDATE
-        public async Task<int> Update(Recipe recipe)
+
+        public async Task<IEnumerable<Recipe>> Search(string? filterWord)
+        {
+            IQueryable<Recipe> query = _context.Recipes
+                .Include(r => r.Tags)
+                .Include(r => r.Steps)
+                .Include(r => r.FavoritedBy)
+                .Include(r => r.Ingredients)
+                .Where(u =>
+                    u.Aprooved == true &&
+                    (string.IsNullOrEmpty(filterWord) || u.Title.Contains(filterWord))
+                );
+
+            var recipes = await query.ToListAsync();
+
+          
+
+            return recipes;
+        }
+
+
+//UPDATE
+public async Task<int> Update(Recipe recipe)
         {
             _context.Recipes.Update(recipe);
             await _context.SaveChangesAsync();
@@ -69,5 +108,23 @@ namespace WebRecipesApi.DAL
             await _context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<Recipe>> ToAprove()
+        {
+            IEnumerable<Recipe> ListRecipes = new List<Recipe>();
+
+            ListRecipes = _context.Recipes
+       .Include(r => r.Tags)
+       .Include(r => r.Steps)
+       .Include(r => r.Comments)
+       .Include(r => r.FavoritedBy)
+       .Include(r => r.Ingredients)
+       .Where(u =>
+           u.Aprooved == false
+       );
+
+            return ListRecipes;
+        }
+
+       
     }
 }

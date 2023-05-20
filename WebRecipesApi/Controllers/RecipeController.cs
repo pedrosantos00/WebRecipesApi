@@ -10,12 +10,14 @@ namespace WebRecipesApi.Controllers
     {
         private readonly RecipeService _recipeService;
         private readonly UserService _userService;
+        private readonly UserFavoriteRecipeService _userFavoriteRecipeService;
 
 
-        public RecipeController(RecipeService recipeService, UserService userService)
+        public RecipeController(RecipeService recipeService, UserService userService, UserFavoriteRecipeService userFavoriteRecipeService)
         {
             _recipeService = recipeService;
             _userService = userService;
+            _userFavoriteRecipeService = userFavoriteRecipeService;
         }
 
 
@@ -28,12 +30,9 @@ namespace WebRecipesApi.Controllers
             User userExists = await _userService.GetById(userId);
             if (userExists == null) return NotFound(new { Message = "User Not Found!" });
 
-            recipe.FavoritedBy = new List<User>();
             recipe.User = userExists;
             recipe.UserId = userId;
-
-            //ADICIONADo
-             userExists.Recipes.Add(recipe);
+            recipe.FavoritedBy = new List<UserFavoriteRecipe>();
 
             await _recipeService.Create(recipe);
 
@@ -49,6 +48,12 @@ namespace WebRecipesApi.Controllers
             return await _recipeService.Search(searchFilter);
         }
 
+        [HttpGet("Aproove")]
+        public async Task<IEnumerable<Recipe>> ToAprove()
+        {
+            return await _recipeService.ToAprove();
+        }
+
         // GET api/<RecipeController>/5
         [HttpGet("{id}")]
         public async Task<Recipe> Get(int id)
@@ -56,13 +61,53 @@ namespace WebRecipesApi.Controllers
             return await _recipeService.GetById(id);
         }
 
-        
+
+        [HttpGet("user/{id}")]
+        public async Task<IEnumerable<Recipe>> GetByUserId(int id)
+        {
+            return await _recipeService.GetByUserId(id);
+        }
+
 
         // POST api/<RecipeController>
         [HttpPost]
         public void Post([FromBody] Recipe recipe)
         {
             _recipeService.Update(recipe);
+        }
+
+        [HttpPost("r/{id}/{rate}")]
+        public async Task<IActionResult> Rate(int id, float rate)
+        {
+            if (id == null) return BadRequest();
+            Recipe recipe = await _recipeService.GetById(id);
+            if (recipe == null) return NotFound(new { Message = "Recipe Not Found!" });
+
+            recipe.Rate = (recipe.Rate * recipe.TotalRates + rate) / (recipe.TotalRates + 1);
+            recipe.TotalRates++;
+
+            await _recipeService.Update(recipe);
+            return Ok();
+        }
+
+        [HttpPost("c/{id}")]
+        public async Task<IActionResult> AddComment(int id,[FromBody] Comment? comment)
+        {
+            if (id == null) return BadRequest();
+            Recipe recipe = await _recipeService.GetById(id);
+            if (recipe == null) return NotFound(new { Message = "Recipe Not Found!" });
+
+            User userExists = await _userService.GetById(comment.UserId);
+            if (userExists == null) return NotFound(new { Message = "User Not Found!" });
+
+            comment.CreatedDate = DateTime.Now;
+            comment.RecipeId = id;
+            comment.Name = userExists.FullName;
+            
+
+            recipe.Comments.Add(comment);
+            await _recipeService.Update(recipe);
+            return Ok();
         }
 
         // PUT api/<RecipeController>/5
@@ -76,24 +121,33 @@ namespace WebRecipesApi.Controllers
         [HttpPut("fav/{id}/{recipeId}")]
         public async Task<IActionResult> AddFavorite(int id, int recipeId)
         {
+           
             //NULO
             if (recipeId == null) return BadRequest();
             Recipe recipe = await _recipeService.GetById(recipeId);
             if (recipe == null) return NotFound(new { Message = "Recipe Not Found!" });
 
+            recipe.FavoritedBy = new List<UserFavoriteRecipe>();
 
             User userExists = await _userService.GetById(id);
             if (userExists == null) return NotFound(new { Message = "User Not Found!" });
 
-            if (recipe.FavoritedBy != null && recipe.FavoritedBy.Any(x => x.Id == userExists.Id))
+            UserFavoriteRecipe userFavoriteRecipe = await _userFavoriteRecipeService.Exists(recipeId, id);
+
+            if (userFavoriteRecipe != null)
             {
-                recipe.FavoritedBy.Remove(userExists);
+                recipe.FavoritedBy.Remove(userFavoriteRecipe);
                 await _recipeService.Update(recipe);
             }
             else
             {
-                recipe.FavoritedBy = new List<User>();
-                recipe.FavoritedBy.Add(userExists);
+                var userFavorite = new UserFavoriteRecipe
+                {
+                    RecipeId = recipeId,
+                    UserId = id,
+                };
+
+                recipe.FavoritedBy.Add(userFavorite);
                 await _recipeService.Update(recipe);
             }
 

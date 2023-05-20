@@ -9,9 +9,13 @@ namespace WebCommentsApi.Controllers
     public class CommentController : ControllerBase
     {
         private readonly CommentService _commentService;
+        private readonly RecipeService _recipeService;
+        private readonly UserService _userService;
 
-        public CommentController(CommentService commentService)
+        public CommentController(RecipeService recipeService, UserService userService, CommentService commentService )
         {
+            _recipeService = recipeService;
+            _userService = userService;
             _commentService = commentService;
         }
 
@@ -30,10 +34,23 @@ namespace WebCommentsApi.Controllers
         }
 
         // POST api/<CommentController>
-        [HttpPost]
-        public void Post([FromBody] Comment comment)
+        [HttpPost("c/{id}")]
+        public async Task<IActionResult> Create(int id, [FromBody] Comment? comment)
         {
-            _commentService.Update(comment);
+            if (id == null) return BadRequest();
+            Recipe recipe = await _recipeService.GetById(id);
+            if (recipe == null) return NotFound(new { Message = "Recipe Not Found!" });
+
+            User userExists = await _userService.GetById(comment.UserId);
+            if (userExists == null) return NotFound(new { Message = "User Not Found!" });
+
+            comment.CreatedDate = DateTime.Now;
+            comment.RecipeId = id;
+            comment.Name = userExists.FullName;
+
+            await _commentService.Create(comment);
+            return Ok();
+            
         }
 
         // PUT api/<CommentController>/5

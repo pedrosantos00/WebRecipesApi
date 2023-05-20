@@ -18,6 +18,7 @@ namespace WebRecipesApi.DAL
         public DbSet<Step> Steps { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users{ get; set; }
+        public DbSet<UserFavoriteRecipe> UserFavoriteRecipes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,10 +27,16 @@ namespace WebRecipesApi.DAL
                 .WithMany(u => u.Recipes)
                 .HasForeignKey(r => r.UserId);
 
-            modelBuilder.Entity<Recipe>()
-                .HasMany(r => r.FavoritedBy)
-                .WithMany(u => u.FavoriteRecipes)
-                .UsingEntity(j => j.ToTable("RecipeFavorites"));
+
+            //modelBuilder.Entity<UserFavoriteRecipe>()
+            //    .HasMany(uf => uf.user)
+            //    .WithMany(u => u.FavoriteRecipes)
+            //    .HasForeignKey(uf => uf.UserId);
+
+            //modelBuilder.Entity<UserFavoriteRecipe>()
+            //    .HasOne(uf => uf.Recipe)
+            //    .WithMany(r => r.FavoritedBy)
+            //    .HasForeignKey(uf => uf.RecipeId);
         }
     }
 

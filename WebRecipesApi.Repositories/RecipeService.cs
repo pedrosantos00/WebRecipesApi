@@ -43,6 +43,22 @@ namespace WebRecipesApi.BusinessLogic
 
             return recipeList.ToList();
         }
+
+        public async Task<List<Recipe>> GetByUserId(int id)
+        {
+            IEnumerable<Recipe> recipeList = await _recipeRepository.GetByUserId(id);
+
+            return recipeList.ToList();
+        }
+
+        public async Task<List<Recipe>> ToAprove()
+        {
+            IEnumerable<Recipe> recipeList = await _recipeRepository.ToAprove();
+
+            return recipeList.ToList();
+        }
+
+
         //UPDATE
         public async Task<int> Update(Recipe recipe)
         {
@@ -60,5 +76,6 @@ namespace WebRecipesApi.BusinessLogic
             else return false;
         }
 
+       
     }
 }

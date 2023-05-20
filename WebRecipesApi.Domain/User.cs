@@ -17,8 +17,9 @@ namespace WebRecipesApi.Domain
         public string Password { get; set; }
         public bool IsBlocked { get; set; } = false;
         public ICollection<Recipe>? Recipes { get; set; }
-        public ICollection<Recipe>? FavoriteRecipes { get; set; }
+        public ICollection<UserFavoriteRecipe>? FavoriteRecipes { get; set; }
 
+        public ICollection<Comment>? Comments { get; set; }
 
         //JWT TOKEN PROPERTIES
         public string? Token { get; set; }

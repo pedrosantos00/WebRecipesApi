@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -16,13 +17,17 @@ namespace WebRecipesApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfilePicture = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Administrator = table.Column<bool>(type: "bit", nullable: false),
-                    IsBlocked = table.Column<bool>(type: "bit", nullable: false)
+                    IsBlocked = table.Column<bool>(type: "bit", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -42,6 +47,7 @@ namespace WebRecipesApi.Migrations
                     Difficulty = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MealsPerRecipe = table.Column<int>(type: "int", nullable: true),
                     Rate = table.Column<float>(type: "real", nullable: true),
+                    Aprooved = table.Column<bool>(type: "bit", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -81,48 +87,24 @@ namespace WebRecipesApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ingridients",
+                name: "Ingredients",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    quantity = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    quantityType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quantity = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    QuantityType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecipeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Ingridients", x => x.Id);
+                    table.PrimaryKey("PK_Ingredients", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Ingridients_Recipes_RecipeId",
+                        name: "FK_Ingredients_Recipes_RecipeId",
                         column: x => x.RecipeId,
                         principalTable: "Recipes",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RecipeFavorites",
-                columns: table => new
-                {
-                    FavoriteRecipesId = table.Column<int>(type: "int", nullable: false),
-                    FavoritedById = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RecipeFavorites", x => new { x.FavoriteRecipesId, x.FavoritedById });
-                    table.ForeignKey(
-                        name: "FK_RecipeFavorites_Recipes_FavoriteRecipesId",
-                        column: x => x.FavoriteRecipesId,
-                        principalTable: "Recipes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RecipeFavorites_Users_FavoritedById",
-                        column: x => x.FavoritedById,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -131,8 +113,7 @@ namespace WebRecipesApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StepName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StepDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StepDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecipeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -151,7 +132,7 @@ namespace WebRecipesApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TagName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TagName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecipeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -162,6 +143,30 @@ namespace WebRecipesApi.Migrations
                         column: x => x.RecipeId,
                         principalTable: "Recipes",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserFavoriteRecipes",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RecipeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserFavoriteRecipes", x => new { x.UserId, x.RecipeId });
+                    table.ForeignKey(
+                        name: "FK_UserFavoriteRecipes_Recipes_RecipeId",
+                        column: x => x.RecipeId,
+                        principalTable: "Recipes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserFavoriteRecipes_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -175,14 +180,9 @@ namespace WebRecipesApi.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Ingridients_RecipeId",
-                table: "Ingridients",
+                name: "IX_Ingredients_RecipeId",
+                table: "Ingredients",
                 column: "RecipeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_RecipeFavorites_FavoritedById",
-                table: "RecipeFavorites",
-                column: "FavoritedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Recipes_UserId",
@@ -198,6 +198,11 @@ namespace WebRecipesApi.Migrations
                 name: "IX_Tags_RecipeId",
                 table: "Tags",
                 column: "RecipeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavoriteRecipes_RecipeId",
+                table: "UserFavoriteRecipes",
+                column: "RecipeId");
         }
 
         /// <inheritdoc />
@@ -207,16 +212,16 @@ namespace WebRecipesApi.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "Ingridients");
-
-            migrationBuilder.DropTable(
-                name: "RecipeFavorites");
+                name: "Ingredients");
 
             migrationBuilder.DropTable(
                 name: "Steps");
 
             migrationBuilder.DropTable(
                 name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "UserFavoriteRecipes");
 
             migrationBuilder.DropTable(
                 name: "Recipes");
