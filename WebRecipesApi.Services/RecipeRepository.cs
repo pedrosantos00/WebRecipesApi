@@ -33,15 +33,6 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.Ingredients)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
-            //if (recipe != null)
-            //{
-            //    // Populate the CommentOwnerFullName and CommentText properties
-            //    recipe.Comments = recipe.Comments.Select(c => new Comment
-            //    {
-            //        Text = c.Text,
-            //        Name = c.Name
-            //    }).ToList();
-            //}
 
             return recipe;
         }
@@ -59,7 +50,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.FavoritedBy)
                 .Include(r => r.Ingredients)
                 .Where(u =>
-                    u.Aprooved == true &&
+                    u.Approved == true &&
                     u.UserId == id
                 );
 
@@ -71,6 +62,24 @@ namespace WebRecipesApi.DAL
         }
 
 
+        public async Task<IEnumerable<Recipe>> GetFavByUserId(int id)
+        {
+            IQueryable<Recipe> query = _context.Recipes
+                .Include(r => r.Tags)
+                .Include(r => r.Steps)
+                .Include(r => r.FavoritedBy)
+                .Include(r => r.Ingredients)
+                .Where(u =>
+                    u.FavoritedBy.Any(x => x.UserId == id)
+                );
+
+            var recipes = await query.ToListAsync();
+
+
+
+            return recipes;
+        }
+
 
         public async Task<IEnumerable<Recipe>> Search(string? filterWord)
         {
@@ -80,7 +89,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.FavoritedBy)
                 .Include(r => r.Ingredients)
                 .Where(u =>
-                    u.Aprooved == true &&
+                    u.Approved == true &&
                     (string.IsNullOrEmpty(filterWord) || u.Title.Contains(filterWord))
                 );
 
@@ -105,10 +114,10 @@ public async Task<int> Update(Recipe recipe)
         public async void Delete(Recipe recipe)
         {
             _context.Recipes.Remove(recipe);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
         }
 
-        public async Task<IEnumerable<Recipe>> ToAprove()
+        public async Task<IEnumerable<Recipe>> ToApprove()
         {
             IEnumerable<Recipe> ListRecipes = new List<Recipe>();
 
@@ -119,7 +128,7 @@ public async Task<int> Update(Recipe recipe)
        .Include(r => r.FavoritedBy)
        .Include(r => r.Ingredients)
        .Where(u =>
-           u.Aprooved == false
+           u.Approved == false
        );
 
             return ListRecipes;

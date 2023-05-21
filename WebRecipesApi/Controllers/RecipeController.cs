@@ -49,9 +49,9 @@ namespace WebRecipesApi.Controllers
         }
 
         [HttpGet("Aproove")]
-        public async Task<IEnumerable<Recipe>> ToAprove()
+        public async Task<IEnumerable<Recipe>> ToApprove()
         {
-            return await _recipeService.ToAprove();
+            return await _recipeService.ToApprove();
         }
 
         // GET api/<RecipeController>/5
@@ -68,12 +68,18 @@ namespace WebRecipesApi.Controllers
             return await _recipeService.GetByUserId(id);
         }
 
+        [HttpGet("fav/user/{id}")]
+        public async Task<IEnumerable<Recipe>> GetByFavUserId(int id)
+        {
+            return await _recipeService.GetFavByUserId(id);
+        }
+
 
         // POST api/<RecipeController>
         [HttpPost]
         public void Post([FromBody] Recipe recipe)
         {
-            _recipeService.Update(recipe);
+            //_recipeService.Update(recipe);
         }
 
         [HttpPost("r/{id}/{rate}")]
@@ -86,7 +92,7 @@ namespace WebRecipesApi.Controllers
             recipe.Rate = (recipe.Rate * recipe.TotalRates + rate) / (recipe.TotalRates + 1);
             recipe.TotalRates++;
 
-            await _recipeService.Update(recipe);
+            await _recipeService.UpdateRate(recipe);
             return Ok();
         }
 
@@ -106,15 +112,20 @@ namespace WebRecipesApi.Controllers
             
 
             recipe.Comments.Add(comment);
-            await _recipeService.Update(recipe);
+            await _recipeService.UpdateComment(recipe);
             return Ok();
         }
 
         // PUT api/<RecipeController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Recipe recipe)
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateRecipe([FromBody] Recipe? updatedRecipe)
         {
-            _recipeService.Update(recipe);
+            if (updatedRecipe == null) return BadRequest();
+            Recipe recipeExists = await _recipeService.GetById(updatedRecipe.Id);
+            if (recipeExists == null) return NotFound(new { Message = "Recipe Not Found!" });
+
+            await _recipeService.Update(recipeExists, updatedRecipe);
+            return Ok();
         }
 
         // PUT api/<RecipeController>/5
@@ -137,7 +148,7 @@ namespace WebRecipesApi.Controllers
             if (userFavoriteRecipe != null)
             {
                 recipe.FavoritedBy.Remove(userFavoriteRecipe);
-                await _recipeService.Update(recipe);
+                await _recipeService.UpdateFav(recipe);
             }
             else
             {
@@ -148,18 +159,21 @@ namespace WebRecipesApi.Controllers
                 };
 
                 recipe.FavoritedBy.Add(userFavorite);
-                await _recipeService.Update(recipe);
+                await _recipeService.UpdateFav(recipe);
             }
 
             return Ok();
         }
 
         // DELETE api/<RecipeController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("del/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _recipeService.Delete(id);
-            return Ok();
+            if(await _recipeService.Delete(id))
+                return Ok(new { Message = "Recipe Deleted!" });
+
+            else
+                return NotFound(new { Message = "Recipe Not Found!" });
         }
     }
 }

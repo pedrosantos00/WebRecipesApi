@@ -203,8 +203,11 @@ namespace WebRecipesApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _userService.Delete(id);
-            return Ok();
+            if (await _userService.Delete(id))
+                return Ok(new { Message = "User Deleted!" });
+
+            else
+                return NotFound(new { Message = "User Not Found!" });
         }
 
     }

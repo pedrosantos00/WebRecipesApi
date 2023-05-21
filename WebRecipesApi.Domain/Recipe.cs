@@ -18,7 +18,7 @@ namespace WebRecipesApi.Domain
         public int? MealsPerRecipe { get; set; }
         public float? Rate { get; set; } = 0;
         public int TotalRates { get; set; } = 0;
-        public bool? Aprooved { get; set; } = false;
+        public bool? Approved { get; set; } = false;
         public int UserId { get; set; }
         public User? User { get; set; }
         public ICollection<Tag>? Tags { get; set; }

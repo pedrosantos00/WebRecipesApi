@@ -58,12 +58,24 @@ namespace WebRecipesApi.BusinessLogic
         //UPDATE
         public async Task<int> Update(User user , User updatedUser)
         {
-            if(!string.IsNullOrEmpty(updatedUser.Email) && user.Email != updatedUser.Email) user.Email = updatedUser.Email;
-            if (!string.IsNullOrEmpty(updatedUser.FirstName) && user.FirstName != updatedUser.FirstName) user.FirstName = updatedUser.FirstName;
-            if (!string.IsNullOrEmpty(updatedUser.LastName) && user.LastName != updatedUser.LastName) user.LastName = updatedUser.LastName;
-            if (!string.IsNullOrEmpty(updatedUser.FullName) && user.FullName != updatedUser.FullName) user.FullName = updatedUser.FullName;
-            if (!string.IsNullOrEmpty(updatedUser.Role) && user.Role != updatedUser.Role) user.Role = updatedUser.Role;
-            if (user.IsBlocked != updatedUser.IsBlocked) user.IsBlocked = updatedUser.IsBlocked;
+            if(!string.IsNullOrEmpty(updatedUser.Email) && user.Email != updatedUser.Email)
+                user.Email = updatedUser.Email;
+
+            if (!string.IsNullOrEmpty(updatedUser.FirstName) && user.FirstName != updatedUser.FirstName)
+                user.FirstName = updatedUser.FirstName;
+
+            if (!string.IsNullOrEmpty(updatedUser.LastName) && user.LastName != updatedUser.LastName) 
+                user.LastName = updatedUser.LastName;
+
+            if (!string.IsNullOrEmpty(updatedUser.FullName) && user.FullName != updatedUser.FullName) 
+                user.FullName = updatedUser.FullName;
+
+            if (!string.IsNullOrEmpty(updatedUser.Role) && user.Role != updatedUser.Role)
+                user.Role = updatedUser.Role;
+
+            if (user.IsBlocked != updatedUser.IsBlocked)
+                user.IsBlocked = updatedUser.IsBlocked;
+
             if (!string.IsNullOrEmpty(updatedUser.Password) && user.Password != updatedUser.Password)
             {
                 user.Password = updatedUser.Password;
