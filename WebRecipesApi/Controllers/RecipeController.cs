@@ -4,6 +4,7 @@ using WebRecipesApi.Domain;
 using WebRecipesApi.BusinessLogic;
 using Microsoft.AspNetCore.Authorization;
 using System.Data;
+using System.Collections;
 
 namespace WebRecipesApi.Controllers
 {
@@ -36,6 +37,7 @@ namespace WebRecipesApi.Controllers
             recipe.User = userExists;
             recipe.UserId = userId;
             recipe.FavoritedBy = new List<UserFavoriteRecipe>();
+            recipe.RateAudit = new List<RateAudit>();
 
             await _recipeService.Create(recipe);
 
@@ -86,18 +88,36 @@ namespace WebRecipesApi.Controllers
             //_recipeService.Update(recipe);
         }
 
-        [HttpPost("r/{id}/{rate}")]
-        public async Task<IActionResult> Rate(int id, float rate)
+        [HttpPost("r/{id}/{rate}/{userId}")]
+        public async Task<IActionResult> Rate(int id, float rate, int userId)
         {
-            if (id == null) return BadRequest();
+            if (id == null)
+                return BadRequest();
+
             Recipe recipe = await _recipeService.GetById(id);
-            if (recipe == null) return NotFound(new { Message = "Recipe Not Found!" });
 
-            recipe.Rate = (recipe.Rate * recipe.TotalRates + rate) / (recipe.TotalRates + 1);
-            recipe.TotalRates++;
+            if (recipe == null) return NotFound
+                    (new { Message = "Recipe Not Found!" });
 
-            await _recipeService.UpdateRate(recipe);
-            return Ok();
+            if (recipe.RateAudit != null && recipe.RateAudit.Any(x => x.RatedBy == userId))
+                return NotFound(new { Message = "You already voted on this recipe!" });
+
+                var rateAudit = new RateAudit
+                {
+                    RatedBy = userId,
+                };
+
+                if (recipe.RateAudit == null)
+                {
+                    recipe.RateAudit = new List<RateAudit>();
+                }
+
+                recipe.RateAudit.Add(rateAudit);
+                recipe.Rate = (recipe.Rate * recipe.TotalRates + rate) / (recipe.TotalRates + 1);
+                recipe.TotalRates++;
+
+                await _recipeService.UpdateRate(recipe);
+                return Ok();
         }
 
         [HttpPost("c/{id}")]
@@ -117,7 +137,7 @@ namespace WebRecipesApi.Controllers
 
             recipe.Comments.Add(comment);
             await _recipeService.UpdateComment(recipe);
-            return Ok();
+            return Ok(new { Message = "Commentary added!" });
         }
 
         // PUT api/<RecipeController>/5
@@ -129,7 +149,7 @@ namespace WebRecipesApi.Controllers
             if (recipeExists == null) return NotFound(new { Message = "Recipe Not Found!" });
 
             await _recipeService.Update(recipeExists, updatedRecipe);
-            return Ok();
+            return Ok(new { Message = "Recipe updated!!" });
         }
 
         // PUT api/<RecipeController>/5
@@ -148,11 +168,12 @@ namespace WebRecipesApi.Controllers
             if (userExists == null) return NotFound(new { Message = "User Not Found!" });
 
             UserFavoriteRecipe userFavoriteRecipe = await _userFavoriteRecipeService.Exists(recipeId, id);
-
+            string respMessage = string.Empty;
             if (userFavoriteRecipe != null)
             {
                 recipe.FavoritedBy.Remove(userFavoriteRecipe);
                 await _recipeService.UpdateFav(recipe);
+                respMessage = "Recipe added to fav list!";
             }
             else
             {
@@ -164,9 +185,10 @@ namespace WebRecipesApi.Controllers
 
                 recipe.FavoritedBy.Add(userFavorite);
                 await _recipeService.UpdateFav(recipe);
+                respMessage = "Recipe added to fav list!";
             }
 
-            return Ok();
+            return Ok(new { Message = respMessage });
         }
 
         // DELETE api/<RecipeController>/5

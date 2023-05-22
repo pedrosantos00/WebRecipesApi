@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebRecipesApi.DAL;
 
@@ -11,9 +12,11 @@ using WebRecipesApi.DAL;
 namespace WebRecipesApi.Migrations
 {
     [DbContext(typeof(WebRecipesDbContext))]
-    partial class WebRecipesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230522212842_te")]
+    partial class te
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

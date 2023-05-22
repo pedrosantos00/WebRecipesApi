@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebRecipesApi.DAL;
 
@@ -11,9 +12,11 @@ using WebRecipesApi.DAL;
 namespace WebRecipesApi.Migrations
 {
     [DbContext(typeof(WebRecipesDbContext))]
-    partial class WebRecipesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230522205614_501")]
+    partial class _501
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,7 +95,7 @@ namespace WebRecipesApi.Migrations
                     b.Property<int>("RatedBy")
                         .HasColumnType("int");
 
-                    b.Property<int>("RecipeId")
+                    b.Property<int?>("RecipeId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -289,9 +292,7 @@ namespace WebRecipesApi.Migrations
                 {
                     b.HasOne("WebRecipesApi.Domain.Recipe", null)
                         .WithMany("RateAudit")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RecipeId");
                 });
 
             modelBuilder.Entity("WebRecipesApi.Domain.Recipe", b =>

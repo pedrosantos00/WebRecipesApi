@@ -31,6 +31,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.Comments)
                 .Include(r => r.FavoritedBy)
                 .Include(r => r.Ingredients)
+                .Include(r => r.RateAudit)
                 .FirstOrDefaultAsync(u => u.Id == id);
 
 
@@ -49,6 +50,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.Steps)
                 .Include(r => r.FavoritedBy)
                 .Include(r => r.Ingredients)
+                .Include(r => r.RateAudit)
                 .Where(u =>
                     u.Approved == true &&
                     u.UserId == id
@@ -69,6 +71,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.Steps)
                 .Include(r => r.FavoritedBy)
                 .Include(r => r.Ingredients)
+                .Include(r => r.RateAudit)
                 .Where(u =>
                     u.FavoritedBy.Any(x => x.UserId == id)
                 );
@@ -88,6 +91,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.Steps)
                 .Include(r => r.FavoritedBy)
                 .Include(r => r.Ingredients)
+                .Include(r => r.RateAudit)
                 .Where(u =>
                     u.Approved == true &&
                     (string.IsNullOrEmpty(filterWord) || u.Title.Contains(filterWord))
@@ -102,7 +106,7 @@ namespace WebRecipesApi.DAL
 
 
 //UPDATE
-public async Task<int> Update(Recipe recipe)
+        public async Task<int> Update(Recipe recipe)
         {
             _context.Recipes.Update(recipe);
             await _context.SaveChangesAsync();
@@ -127,6 +131,7 @@ public async Task<int> Update(Recipe recipe)
        .Include(r => r.Comments)
        .Include(r => r.FavoritedBy)
        .Include(r => r.Ingredients)
+       .Include(r => r.RateAudit)
        .Where(u =>
            u.Approved == false
        );
