@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using WebRecipesApi.Domain;
 using WebRecipesApi.BusinessLogic;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
+
 namespace WebRecipesApi.Controllers
 {
     [Route("[controller]")]
@@ -49,6 +52,7 @@ namespace WebRecipesApi.Controllers
         }
 
         [HttpGet("Aproove")]
+        [Authorize(Roles = "Admin")]
         public async Task<IEnumerable<Recipe>> ToApprove()
         {
             return await _recipeService.ToApprove();
@@ -167,6 +171,7 @@ namespace WebRecipesApi.Controllers
 
         // DELETE api/<RecipeController>/5
         [HttpDelete("del/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             if(await _recipeService.Delete(id))

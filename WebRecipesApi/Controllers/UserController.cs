@@ -9,6 +9,7 @@ using WebRecipesApi.DAL;
 using static System.Net.Mime.MediaTypeNames;
 using System.Net;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebRecipesApi.Controllers
 {
@@ -29,6 +30,7 @@ namespace WebRecipesApi.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
+        
         public async Task<IEnumerable<User>> Get(string? searchFilter = null)
         {
             return await _userService.Search(searchFilter);
@@ -58,7 +60,7 @@ namespace WebRecipesApi.Controllers
 
             var newRefreshToken = _jwtService.CreateRefreshToken();
             userExists.RefreshToken = newRefreshToken;
-            userExists.RefreshTokenExpiryTime = DateTime.Now.AddDays(5);
+            userExists.RefreshTokenExpiryTime = DateTime.Now.AddDays(14);
             await _context.SaveChangesAsync();
             return Ok(new TokenApiDTO()
             {
@@ -68,7 +70,7 @@ namespace WebRecipesApi.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(TokenApiDTO tokenApiDto)
+        public async Task<IActionResult> Refresh(TokenApiDTO? tokenApiDto)
         {
             if (tokenApiDto is null) return BadRequest("Invalid Client Request");
 
@@ -80,6 +82,8 @@ namespace WebRecipesApi.Controllers
 
             User user = await _userService.GetByEmail(email);
 
+
+        
             if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now) return BadRequest("Invalid Request");
 
 
@@ -121,6 +125,7 @@ namespace WebRecipesApi.Controllers
 
         // GET api/<UserController>/5
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<User> Get(int id)
         {
             return await _userService.GetById(id);
@@ -128,6 +133,7 @@ namespace WebRecipesApi.Controllers
 
         // POST api/<UserController>
         [HttpPost]
+        [Authorize]
         public void Post([FromBody] User user)
         {
             _userService.Update(user, user);
@@ -135,6 +141,7 @@ namespace WebRecipesApi.Controllers
 
         // PUT api/<UserController>/5
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> Put(int id, [FromBody] User? user)
         {
             //NULO
@@ -159,6 +166,7 @@ namespace WebRecipesApi.Controllers
 
 
         [HttpPut("img={id}")]
+        [Authorize]
         public async Task<IActionResult> SaveImage(int id, [FromForm] IFormFile imageData)
         {
             User userExists = await _userService.GetById(id);
@@ -178,6 +186,7 @@ namespace WebRecipesApi.Controllers
         }
 
         [HttpGet("img={id}")]
+        [Authorize]
         public async Task<IActionResult> GetImage(int id)
         {
             User userExists = await _userService.GetById(id);
@@ -201,6 +210,7 @@ namespace WebRecipesApi.Controllers
 
         // DELETE api/<UserController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             if (await _userService.Delete(id))
