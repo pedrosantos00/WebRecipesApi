@@ -14,54 +14,55 @@ namespace WebRecipesApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+            // Configure Swagger/OpenAPI
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Configure CORS policy
             builder.Services.AddCors(option =>
             {
                 option.AddPolicy("Policy", builder =>
                 {
-                    builder.
-                    AllowAnyOrigin().
-                    AllowAnyMethod().
-                    AllowAnyHeader();
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
                 });
             });
 
+            // Configure DbContext
             builder.Services.AddDbContext<WebRecipesDbContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerCon"));
                 option.UseSqlServer(b => b.MigrationsAssembly("WebRecipesApi"));
             });
+
+            // Register repositories
             builder.Services.AddScoped<CommentRepository>();
-            builder.Services.AddScoped<CommentService>();
-
             builder.Services.AddScoped<IngredientRepository>();
-            builder.Services.AddScoped<IngredientService>();
-
             builder.Services.AddScoped<RecipeRepository>();
-            builder.Services.AddScoped<RecipeService>();
-
             builder.Services.AddScoped<StepRepository>();
-            builder.Services.AddScoped<StepService>();
-
             builder.Services.AddScoped<TagRepository>();
-            builder.Services.AddScoped<TagService>();
-
             builder.Services.AddScoped<UserRepository>();
-            builder.Services.AddScoped<UserService>();
-
             builder.Services.AddScoped<UserFavRecipeRepository>();
+
+            // Register services
+            builder.Services.AddScoped<CommentService>();
+            builder.Services.AddScoped<IngredientService>();
+            builder.Services.AddScoped<RecipeService>();
+            builder.Services.AddScoped<StepService>();
+            builder.Services.AddScoped<TagService>();
+            builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<UserFavoriteRecipeService>();
 
-
+            // Register JWT service
             builder.Services.AddScoped<JWTService>();
 
+            // Register DbContext
             builder.Services.AddScoped<WebRecipesDbContext>();
 
+            // Configure authentication and JWT Bearer
             builder.Services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -82,6 +83,18 @@ namespace WebRecipesApi
 
             var app = builder.Build();
 
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<WebRecipesDbContext>();
+                if (!dbContext.DatabaseExists())
+                {
+                    dbContext.Database.Migrate();
+                    dbContext.CreateData();
+                }
+            }
+
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -94,9 +107,7 @@ namespace WebRecipesApi
             app.UseCors("Policy");
 
             app.UseAuthentication();
-
             app.UseAuthorization();
-
 
             app.MapControllers();
 

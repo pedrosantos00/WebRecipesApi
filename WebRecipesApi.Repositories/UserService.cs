@@ -50,24 +50,24 @@ namespace WebRecipesApi.BusinessLogic
             return await _userRepository.GetByEmail(email);
         }
 
-        public async Task<List<User>> Search (string? filterword)
+        public async Task<List<User>> Search(string? filterword)
         {
             IEnumerable<User> userList = await _userRepository.Search(filterword);
             return userList.ToList();
         }
         //UPDATE
-        public async Task<int> Update(User user , User updatedUser)
+        public async Task<int> Update(User user, User updatedUser)
         {
-            if(!string.IsNullOrEmpty(updatedUser.Email) && user.Email != updatedUser.Email)
+            if (!string.IsNullOrEmpty(updatedUser.Email) && user.Email != updatedUser.Email)
                 user.Email = updatedUser.Email;
 
             if (!string.IsNullOrEmpty(updatedUser.FirstName) && user.FirstName != updatedUser.FirstName)
                 user.FirstName = updatedUser.FirstName;
 
-            if (!string.IsNullOrEmpty(updatedUser.LastName) && user.LastName != updatedUser.LastName) 
+            if (!string.IsNullOrEmpty(updatedUser.LastName) && user.LastName != updatedUser.LastName)
                 user.LastName = updatedUser.LastName;
 
-            if (!string.IsNullOrEmpty(updatedUser.FullName) && user.FullName != updatedUser.FullName) 
+            if (!string.IsNullOrEmpty(updatedUser.FullName) && user.FullName != updatedUser.FullName)
                 user.FullName = updatedUser.FullName;
 
             if (!string.IsNullOrEmpty(updatedUser.Role) && user.Role != updatedUser.Role)
@@ -81,7 +81,7 @@ namespace WebRecipesApi.BusinessLogic
                 user.Password = updatedUser.Password;
                 user.Password = PasswordHasher.HashPassword(user.Password);
             }
-                return await _userRepository.Update(user);
+            return await _userRepository.Update(user);
         }
         //DELETE
         public async Task<bool> Delete(int id)
@@ -108,7 +108,7 @@ namespace WebRecipesApi.BusinessLogic
             return passwordRequirements.ToString();
         }
 
-        internal bool RefreshTokenExists(string refreshtoken)
+        public bool RefreshTokenExists(string refreshtoken)
         {
             bool flag = _userRepository.RefreshTokenExists(refreshtoken);
             if (flag) return true; else return false;

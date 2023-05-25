@@ -39,7 +39,7 @@ namespace WebRecipesApi.BusinessLogic
         }
 
 
-        public async Task<List<Step>> Search (string? filterword)
+        public async Task<List<Step>> Search(string? filterword)
         {
             IEnumerable<Step> stepList = await _stepRepository.Search(filterword);
             return stepList.ToList();

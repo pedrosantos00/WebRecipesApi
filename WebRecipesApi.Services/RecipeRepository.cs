@@ -99,13 +99,13 @@ namespace WebRecipesApi.DAL
 
             var recipes = await query.ToListAsync();
 
-          
+
 
             return recipes;
         }
 
 
-//UPDATE
+        //UPDATE
         public async Task<int> Update(Recipe recipe)
         {
             _context.Recipes.Update(recipe);
@@ -139,6 +139,6 @@ namespace WebRecipesApi.DAL
             return ListRecipes;
         }
 
-       
+
     }
 }

@@ -38,7 +38,7 @@ namespace WebRecipesApi.BusinessLogic
         }
 
 
-        public async Task<List<Ingredient>> Search (string? filterword)
+        public async Task<List<Ingredient>> Search(string? filterword)
         {
             IEnumerable<Ingredient> ingredientList = await _ingredientRepository.Search(filterword);
             return ingredientList.ToList();

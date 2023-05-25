@@ -21,6 +21,7 @@ namespace WebRecipesApi.DAL
         public async Task<int> Create(User user)
         {
             user.FullName = $"{user.FirstName} {user.LastName}";
+            user.Role = "User";
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
             return user.Id;
@@ -81,6 +82,6 @@ namespace WebRecipesApi.DAL
             if (flag) return true; else return false;
         }
 
-        
+
     }
 }

@@ -12,7 +12,7 @@ namespace WebCommentsApi.Controllers
         private readonly RecipeService _recipeService;
         private readonly UserService _userService;
 
-        public CommentController(RecipeService recipeService, UserService userService, CommentService commentService )
+        public CommentController(RecipeService recipeService, UserService userService, CommentService commentService)
         {
             _recipeService = recipeService;
             _userService = userService;
@@ -50,7 +50,7 @@ namespace WebCommentsApi.Controllers
 
             await _commentService.Create(comment);
             return Ok();
-            
+
         }
 
         // PUT api/<CommentController>/5

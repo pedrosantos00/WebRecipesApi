@@ -30,16 +30,16 @@ namespace WebRecipesApi.Controllers
 
         // POST api/<StepController>
         [HttpPost]
-        public void Post([FromBody] Step step)
+        public async void Post([FromBody] Step step)
         {
-            _stepService.Update(step);
+            await _stepService.Update(step);
         }
 
         // PUT api/<StepController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Step step)
+        public async void Put(int id, [FromBody] Step step)
         {
-            _stepService.Update(step);
+            await _stepService.Update(step);
         }
 
         // DELETE api/<StepController>/5

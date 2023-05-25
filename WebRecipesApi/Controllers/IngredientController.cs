@@ -31,16 +31,16 @@ namespace WebRecipesApi.Controllers
 
         // POST api/<IngredientController>
         [HttpPost]
-        public void Post([FromBody] Ingredient ingredient)
+        public async void Post([FromBody] Ingredient ingredient)
         {
-            _ingredientService.Update(ingredient);
+            await _ingredientService.Update(ingredient);
         }
 
         // PUT api/<IngredientController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Ingredient ingredient)
+        public async void Put(int id, [FromBody] Ingredient ingredient)
         {
-            _ingredientService.Update(ingredient);
+           await  _ingredientService.Update(ingredient);
         }
 
         // DELETE api/<IngredientController>/5

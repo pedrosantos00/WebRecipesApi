@@ -27,7 +27,7 @@ namespace WebRecipesApi.BusinessLogic
             return id;
         }
         //RETRIEVE
-        public async Task<Recipe> GetById(int id)
+        public async Task<Recipe?> GetById(int id)
         {
             return await _recipeRepository.GetById(id);
         }
@@ -37,7 +37,7 @@ namespace WebRecipesApi.BusinessLogic
             return await _recipeRepository.GetByName(name);
         }
 
-        public async Task<List<Recipe>> Search (string? filterword)
+        public async Task<List<Recipe>> Search(string? filterword)
         {
             IEnumerable<Recipe> recipeList = await _recipeRepository.Search(filterword);
 

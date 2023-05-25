@@ -26,7 +26,8 @@ namespace WebRecipesApi.Controllers
 
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create(int userId,[FromBody]Recipe? recipe)
+        [Authorize]
+        public async Task<IActionResult> Create(int userId, [FromBody] Recipe? recipe)
         {
             //NULO
             if (recipe == null) return BadRequest();
@@ -81,14 +82,10 @@ namespace WebRecipesApi.Controllers
         }
 
 
-        // POST api/<RecipeController>
-        [HttpPost]
-        public void Post([FromBody] Recipe recipe)
-        {
-            //_recipeService.Update(recipe);
-        }
+        
 
         [HttpPost("r/{id}/{rate}/{userId}")]
+        [Authorize]
         public async Task<IActionResult> Rate(int id, float rate, int userId)
         {
             if (id == null)
@@ -102,26 +99,27 @@ namespace WebRecipesApi.Controllers
             if (recipe.RateAudit != null && recipe.RateAudit.Any(x => x.RatedBy == userId))
                 return NotFound(new { Message = "You already voted on this recipe!" });
 
-                var rateAudit = new RateAudit
-                {
-                    RatedBy = userId,
-                };
+            var rateAudit = new RateAudit
+            {
+                RatedBy = userId,
+            };
 
-                if (recipe.RateAudit == null)
-                {
-                    recipe.RateAudit = new List<RateAudit>();
-                }
+            if (recipe.RateAudit == null)
+            {
+                recipe.RateAudit = new List<RateAudit>();
+            }
 
-                recipe.RateAudit.Add(rateAudit);
-                recipe.Rate = (recipe.Rate * recipe.TotalRates + rate) / (recipe.TotalRates + 1);
-                recipe.TotalRates++;
+            recipe.RateAudit.Add(rateAudit);
+            recipe.Rate = (recipe.Rate * recipe.TotalRates + rate) / (recipe.TotalRates + 1);
+            recipe.TotalRates++;
 
-                await _recipeService.UpdateRate(recipe);
-                return Ok();
+            await _recipeService.UpdateRate(recipe);
+            return Ok();
         }
 
         [HttpPost("c/{id}")]
-        public async Task<IActionResult> AddComment(int id,[FromBody] Comment? comment)
+        [Authorize]
+        public async Task<IActionResult> AddComment(int id, [FromBody] Comment? comment)
         {
             if (id == null) return BadRequest();
             Recipe recipe = await _recipeService.GetById(id);
@@ -133,7 +131,7 @@ namespace WebRecipesApi.Controllers
             comment.CreatedDate = DateTime.Now;
             comment.RecipeId = id;
             comment.Name = userExists.FullName;
-            
+
 
             recipe.Comments.Add(comment);
             await _recipeService.UpdateComment(recipe);
@@ -142,6 +140,7 @@ namespace WebRecipesApi.Controllers
 
         // PUT api/<RecipeController>/5
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateRecipe([FromBody] Recipe? updatedRecipe)
         {
             if (updatedRecipe == null) return BadRequest();
@@ -156,7 +155,7 @@ namespace WebRecipesApi.Controllers
         [HttpPut("fav/{id}/{recipeId}")]
         public async Task<IActionResult> AddFavorite(int id, int recipeId)
         {
-           
+
             //NULO
             if (recipeId == null) return BadRequest();
             Recipe recipe = await _recipeService.GetById(recipeId);
@@ -193,10 +192,10 @@ namespace WebRecipesApi.Controllers
 
         // DELETE api/<RecipeController>/5
         [HttpDelete("del/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            if(await _recipeService.Delete(id))
+            if (await _recipeService.Delete(id))
                 return Ok(new { Message = "Recipe Deleted!" });
 
             else

@@ -31,16 +31,16 @@ namespace WebRecipesApi.Controllers
 
         // POST api/<TagController>
         [HttpPost]
-        public void Post([FromBody] Tag tag)
+        public async void Post([FromBody] Tag tag)
         {
-            _tagService.Update(tag);
+            await  _tagService.Update(tag);
         }
 
         // PUT api/<TagController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Tag tag)
+        public async void Put(int id, [FromBody] Tag tag)
         {
-            _tagService.Update(tag);
+            await _tagService.Update(tag);
         }
 
         // DELETE api/<TagController>/5

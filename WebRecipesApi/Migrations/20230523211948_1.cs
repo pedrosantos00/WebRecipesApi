@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebRecipesApi.Migrations
 {
     /// <inheritdoc />
-    public partial class v10 : Migration
+    public partial class _1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,8 +47,9 @@ namespace WebRecipesApi.Migrations
                     Difficulty = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MealsPerRecipe = table.Column<int>(type: "int", nullable: true),
                     Rate = table.Column<float>(type: "real", nullable: true),
-                    Aprooved = table.Column<bool>(type: "bit", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    TotalRates = table.Column<int>(type: "int", nullable: false),
+                    Approved = table.Column<bool>(type: "bit", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,7 +58,8 @@ namespace WebRecipesApi.Migrations
                         name: "FK_Recipes_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,9 +68,11 @@ namespace WebRecipesApi.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RecipeId = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RecipeId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,13 +81,13 @@ namespace WebRecipesApi.Migrations
                         name: "FK_Comments_Recipes_RecipeId",
                         column: x => x.RecipeId,
                         principalTable: "Recipes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comments_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,11 +112,32 @@ namespace WebRecipesApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RateAudit",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RatedBy = table.Column<int>(type: "int", nullable: false),
+                    RecipeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RateAudit", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RateAudit_Recipes_RecipeId",
+                        column: x => x.RecipeId,
+                        principalTable: "Recipes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Steps",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    StepId = table.Column<int>(type: "int", nullable: false),
                     StepDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecipeId = table.Column<int>(type: "int", nullable: true)
                 },
@@ -149,12 +174,14 @@ namespace WebRecipesApi.Migrations
                 name: "UserFavoriteRecipes",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     RecipeId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserFavoriteRecipes", x => new { x.UserId, x.RecipeId });
+                    table.PrimaryKey("PK_UserFavoriteRecipes", x => x.Id);
                     table.ForeignKey(
                         name: "FK_UserFavoriteRecipes_Recipes_RecipeId",
                         column: x => x.RecipeId,
@@ -185,6 +212,11 @@ namespace WebRecipesApi.Migrations
                 column: "RecipeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RateAudit_RecipeId",
+                table: "RateAudit",
+                column: "RecipeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Recipes_UserId",
                 table: "Recipes",
                 column: "UserId");
@@ -203,6 +235,11 @@ namespace WebRecipesApi.Migrations
                 name: "IX_UserFavoriteRecipes_RecipeId",
                 table: "UserFavoriteRecipes",
                 column: "RecipeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserFavoriteRecipes_UserId",
+                table: "UserFavoriteRecipes",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -213,6 +250,9 @@ namespace WebRecipesApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Ingredients");
+
+            migrationBuilder.DropTable(
+                name: "RateAudit");
 
             migrationBuilder.DropTable(
                 name: "Steps");
