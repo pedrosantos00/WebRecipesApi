@@ -88,7 +88,6 @@ namespace WebRecipesApi.BusinessLogic
             if (updatedRecipe.MealsPerRecipe != null && recipe.MealsPerRecipe != updatedRecipe.MealsPerRecipe)
                 recipe.MealsPerRecipe = updatedRecipe.MealsPerRecipe;
 
-
             if (updatedRecipe.Approved != null && recipe.Approved != updatedRecipe.Approved)
                 recipe.Approved = updatedRecipe.Approved;
 

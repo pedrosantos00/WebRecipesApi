@@ -39,22 +39,15 @@ namespace WebRecipesApi
             });
 
             // Register repositories
-            builder.Services.AddScoped<CommentRepository>();
-            builder.Services.AddScoped<IngredientRepository>();
             builder.Services.AddScoped<RecipeRepository>();
-            builder.Services.AddScoped<StepRepository>();
-            builder.Services.AddScoped<TagRepository>();
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<UserFavRecipeRepository>();
 
             // Register services
-            builder.Services.AddScoped<CommentService>();
-            builder.Services.AddScoped<IngredientService>();
             builder.Services.AddScoped<RecipeService>();
-            builder.Services.AddScoped<StepService>();
-            builder.Services.AddScoped<TagService>();
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<UserFavoriteRecipeService>();
+
 
             // Register JWT service
             builder.Services.AddScoped<JWTService>();
@@ -84,6 +77,7 @@ namespace WebRecipesApi
             var app = builder.Build();
 
 
+            // check if db exists, if not, create it and add data to it
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<WebRecipesDbContext>();
