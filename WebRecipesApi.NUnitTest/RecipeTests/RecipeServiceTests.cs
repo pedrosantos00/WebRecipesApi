@@ -149,7 +149,7 @@ namespace WebRecipesApi.NUnitTest
             int id = this.recipe.UserId;
 
             // Act
-            List<Recipe> recipes = await _recipeService.GetByUserId(id);
+            List<Recipe> recipes = await _recipeService.GetByUserId(id , 0 , 5);
 
             // Assert
             Assert.NotNull(recipes);
@@ -162,7 +162,7 @@ namespace WebRecipesApi.NUnitTest
             int id = 2;
 
             // Act
-            List<Recipe> recipes = await _recipeService.GetFavByUserId(id);
+            List<Recipe> recipes = await _recipeService.GetFavByUserId(id, 0, 5);
 
             // Assert
             Assert.NotNull(recipes);
