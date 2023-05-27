@@ -37,23 +37,23 @@ namespace WebRecipesApi.BusinessLogic
             return await _recipeRepository.GetByName(name);
         }
 
-        public async Task<List<Recipe>> Search(string? filterword)
+        public async Task<List<Recipe>> Search(string? filterword, int startIndex , int itemCount)
         {
-            IEnumerable<Recipe> recipeList = await _recipeRepository.Search(filterword);
+            IEnumerable<Recipe> recipeList = await _recipeRepository.Search(filterword, startIndex, itemCount);
 
             return recipeList.ToList();
         }
 
-        public async Task<List<Recipe>> GetByUserId(int id)
+        public async Task<List<Recipe>> GetByUserId(int id, int startIndex, int itemCount)
         {
-            IEnumerable<Recipe> recipeList = await _recipeRepository.GetByUserId(id);
+            IEnumerable<Recipe> recipeList = await _recipeRepository.GetByUserId(id, startIndex, itemCount);
 
             return recipeList.ToList();
         }
 
-        public async Task<List<Recipe>> GetFavByUserId(int id)
+        public async Task<List<Recipe>> GetFavByUserId(int id, int startIndex, int itemCount)
         {
-            IEnumerable<Recipe> recipeList = await _recipeRepository.GetFavByUserId(id);
+            IEnumerable<Recipe> recipeList = await _recipeRepository.GetFavByUserId(id, startIndex, itemCount);
 
             return recipeList.ToList();
         }

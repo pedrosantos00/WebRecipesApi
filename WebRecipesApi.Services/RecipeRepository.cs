@@ -43,7 +43,7 @@ namespace WebRecipesApi.DAL
             return await _context.Recipes.FirstOrDefaultAsync(u => u.Title == title);
         }
 
-        public async Task<IEnumerable<Recipe>> GetByUserId(int id)
+        public async Task<IEnumerable<Recipe>> GetByUserId(int id , int startIndex, int itemCount)
         {
             IQueryable<Recipe> query = _context.Recipes
                 .Include(r => r.Tags)
@@ -54,7 +54,7 @@ namespace WebRecipesApi.DAL
                 .Where(u =>
                     u.Approved == true &&
                     u.UserId == id
-                );
+                ).Skip(startIndex).Take(itemCount);
 
             var recipes = await query.ToListAsync();
 
@@ -64,7 +64,7 @@ namespace WebRecipesApi.DAL
         }
 
 
-        public async Task<IEnumerable<Recipe>> GetFavByUserId(int id)
+        public async Task<IEnumerable<Recipe>> GetFavByUserId(int id, int startIndex, int itemCount)
         {
             IQueryable<Recipe> query = _context.Recipes
                 .Include(r => r.Tags)
@@ -74,7 +74,7 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.RateAudit)
                 .Where(u =>
                     u.FavoritedBy.Any(x => x.UserId == id)
-                );
+                ).Skip(startIndex).Take(itemCount);
 
             var recipes = await query.ToListAsync();
 
@@ -84,7 +84,7 @@ namespace WebRecipesApi.DAL
         }
 
 
-        public async Task<IEnumerable<Recipe>> Search(string? filterWord)
+        public async Task<IEnumerable<Recipe>> Search(string? filterWord , int startIndex , int itemCount)
         {
             IQueryable<Recipe> query = _context.Recipes
                 .Include(r => r.Tags)
@@ -95,7 +95,7 @@ namespace WebRecipesApi.DAL
                 .Where(u =>
                     u.Approved == true &&
                     (string.IsNullOrEmpty(filterWord) || u.Title.Contains(filterWord))
-                );
+                ).Skip(startIndex).Take(itemCount);
 
             var recipes = await query.ToListAsync();
 

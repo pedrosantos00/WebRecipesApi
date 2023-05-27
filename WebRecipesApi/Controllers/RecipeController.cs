@@ -50,9 +50,9 @@ namespace WebRecipesApi.Controllers
 
         // GET: /Recipe
         [HttpGet]
-        public async Task<IEnumerable<Recipe>> Get(string? searchFilter = null)
+        public async Task<IEnumerable<Recipe>> Get(string? searchFilter = null, int startIndex = 0, int itemCount  = 3)
         {
-            return await _recipeService.Search(searchFilter);
+            return await _recipeService.Search(searchFilter, startIndex,itemCount);
         }
 
         // GET: /Recipe/approve
@@ -72,16 +72,16 @@ namespace WebRecipesApi.Controllers
 
         // GET: /Recipe/user/{id}
         [HttpGet("user/{id}")]
-        public async Task<IEnumerable<Recipe>> GetByUserId(int id)
+        public async Task<IEnumerable<Recipe>> GetByUserId(int id , int startIndex, int itemCount)
         {
-            return await _recipeService.GetByUserId(id);
+            return await _recipeService.GetByUserId(id, startIndex, itemCount);
         }
 
         // GET: /Recipe/fav/user/{id}
         [HttpGet("fav/user/{id}")]
-        public async Task<IEnumerable<Recipe>> GetByFavUserId(int id)
+        public async Task<IEnumerable<Recipe>> GetByFavUserId(int id, int startIndex, int itemCount)
         {
-            return await _recipeService.GetFavByUserId(id);
+            return await _recipeService.GetFavByUserId(id, startIndex, itemCount);
         }
 
         // POST: /Recipe/r/{id}/{rate}/{userId}
