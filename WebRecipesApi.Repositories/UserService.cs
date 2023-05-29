@@ -17,10 +17,16 @@ namespace WebRecipesApi.BusinessLogic
     public class UserService
     {
         private readonly UserRepository _userRepository;
+        private readonly RecipeRepository _recipeRepository;
 
 
 
-        public UserService(UserRepository userRepository) => _userRepository = userRepository;
+        public UserService(UserRepository userRepository, RecipeRepository recipeRepository)
+        {
+            _userRepository = userRepository;
+
+            _recipeRepository = recipeRepository;
+        }
 
         //CRUD
 
@@ -83,17 +89,7 @@ namespace WebRecipesApi.BusinessLogic
             }
             return await _userRepository.Update(user);
         }
-        //DELETE
-        public async Task<bool> Delete(int id)
-        {
-            User? userToDelete = await _userRepository.GetById(id);
-            if (userToDelete != null)
-            {
-                _userRepository.Delete(userToDelete);
-                return true;
-            }
-            else { return false; }
-        }
+      
 
         public async Task<bool> CheckEmailExistsAsync(string email) => await _userRepository.CheckEmailExistsAsync(email);
 
@@ -112,6 +108,30 @@ namespace WebRecipesApi.BusinessLogic
         {
             bool flag = _userRepository.RefreshTokenExists(refreshtoken);
             if (flag) return true; else return false;
+        }
+
+
+        //DELETE
+        public async Task<bool> Delete(int id)
+        {
+            User? userToDelete = await _userRepository.GetById(id);
+            if (userToDelete != null)
+            {
+                IEnumerable<Recipe> recipeList = await _recipeRepository.GetByUserId(userToDelete.Id, 0, 999);
+                recipeList.ToList();
+
+                if (recipeList.Count() != 0 )
+                {
+                    foreach(Recipe recipe in recipeList)
+                    {
+                        _recipeRepository.Delete(recipe);
+                    }
+                } 
+
+                _userRepository.Delete(userToDelete);
+                return true;
+            }
+            else { return false; }
         }
     }
 }

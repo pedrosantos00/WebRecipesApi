@@ -52,7 +52,6 @@ namespace WebRecipesApi.DAL
                 .Include(r => r.Ingredients)
                 .Include(r => r.RateAudit)
                 .Where(u =>
-                    u.Approved == true &&
                     u.UserId == id
                 ).Skip(startIndex).Take(itemCount);
 
@@ -64,7 +63,7 @@ namespace WebRecipesApi.DAL
         }
 
 
-        public async Task<IEnumerable<Recipe>> GetFavByUserId(int id, int startIndex, int itemCount)
+        public async Task<IEnumerable<Recipe>> GetFavByUserId(int id, int startIndex = 0, int itemCount = 500)
         {
             IQueryable<Recipe> query = _context.Recipes
                 .Include(r => r.Tags)

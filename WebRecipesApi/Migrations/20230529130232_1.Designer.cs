@@ -12,7 +12,7 @@ using WebRecipesApi.DAL;
 namespace WebRecipesApi.Migrations
 {
     [DbContext(typeof(WebRecipesDbContext))]
-    [Migration("20230523211948_1")]
+    [Migration("20230529130232_1")]
     partial class _1
     {
         /// <inheritdoc />
