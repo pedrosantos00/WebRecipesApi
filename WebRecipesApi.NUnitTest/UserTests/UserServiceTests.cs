@@ -17,6 +17,7 @@ namespace WebRecipesApi.NUnitTest
         private DbContextOptions<WebRecipesDbContext> _dbContextOptions;
         private  IConfiguration _configuration;
         private UserService _userService;
+        private RecipeService _recipeService;
         private User user = new User();
         private int Id;
 
@@ -44,11 +45,14 @@ namespace WebRecipesApi.NUnitTest
             };
 
 
+            RecipeRepository recipeRepository = new RecipeRepository(new WebRecipesDbContext(_dbContextOptions));
+            _recipeService = new RecipeService(recipeRepository);
+
             UserRepository userRepository = new UserRepository(new WebRecipesDbContext(_dbContextOptions));
-            _userService = new UserService(userRepository);
+            _userService = new UserService(userRepository, recipeRepository);
 
 
-           
+
         }
 
 
@@ -234,10 +238,10 @@ namespace WebRecipesApi.NUnitTest
         public async Task Delete_ExistingId_ReturnsTrue()
         {
             // Arrange
-            int existingId = Id;
+            int id = this.Id;
 
             // Act
-            bool result = await _userService.Delete(existingId);
+            bool result = await _userService.Delete(id);
 
             // Assert
             Assert.IsTrue(result);

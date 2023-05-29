@@ -21,11 +21,14 @@ namespace WebRecipesApi.BusinessLogic
 
 
 
-        public UserService(UserRepository userRepository, RecipeRepository recipeRepository)
+        public UserService(UserRepository userRepository, RecipeRepository? recipeRepository = null )
         {
             _userRepository = userRepository;
 
-            _recipeRepository = recipeRepository;
+            if( recipeRepository != null )
+            {
+                _recipeRepository = recipeRepository;
+            }
         }
 
         //CRUD

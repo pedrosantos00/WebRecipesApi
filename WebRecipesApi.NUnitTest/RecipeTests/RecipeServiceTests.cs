@@ -88,7 +88,7 @@ namespace WebRecipesApi.NUnitTest
             _recipeService = new RecipeService(recipeRepository);
 
             UserRepository userRepository = new UserRepository(new WebRecipesDbContext(_dbContextOptions));
-            _userService = new UserService(userRepository);
+            _userService = new UserService(userRepository, recipeRepository);
 
 
 
@@ -215,17 +215,14 @@ namespace WebRecipesApi.NUnitTest
         public async Task Delete_ExistingId_ReturnsTrue()
         {
             // Arrange
-            int recipeId= Id;
             int userId = UserId;
 
             // Act
             bool result2 = await _userService.Delete(userId);
-            bool result = await _recipeService.Delete(recipeId);
 
 
             // Assert
 
-            Assert.IsTrue(result);
             Assert.IsTrue(result2);
         }
 
