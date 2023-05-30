@@ -120,7 +120,8 @@ namespace WebRecipesApi.BusinessLogic
             User? userToDelete = await _userRepository.GetById(id);
             if (userToDelete != null)
             {
-                IEnumerable<Recipe> recipeList = await _recipeRepository.GetByUserId(userToDelete.Id, 0, 999);
+                
+                IEnumerable<Recipe> recipeList = await _recipeRepository.GetByUserId(userToDelete.Id, 0, 2147483647);
                 recipeList.ToList();
 
                 if (recipeList.Count() != 0 )
